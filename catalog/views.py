@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from .models import Book, Author, BookInstance, Genre
 from django.views import generic
-
-
+from django.contrib.auth.decorators import login_required
+@login_required
 def index(request):
     """View function for home page of site."""
 
@@ -20,6 +20,11 @@ def index(request):
     # Books that contain a in the name
     num_books_with_a = Book.objects.filter(title__icontains='a').count()
 
+    # Number of visits to this view, as counted in the session variable
+    num_visits = request.session.get('num_visits', 0)
+    num_visits += 1
+    request.session['num_visits'] = num_visits
+
     context = {
         'num_books': num_books,
         'num_instances': num_instances,
@@ -27,6 +32,7 @@ def index(request):
         'num_instances_available': num_instances_available,
         'num_authors': num_authors,
         'num_books_with_a': num_books_with_a,
+        'num_visits': num_visits,
     }
 
     # Render the HTML template index.html with the data in the context variable
